@@ -31,6 +31,7 @@ class PID {
    */
   double TotalError();
 
+  void SetParam(double Kp_, double Ki_, double Kd_);
  private:
   /**
    * PID Errors

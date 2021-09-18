@@ -32,8 +32,9 @@ string hasData(string s) {
 
 int main() {
   uWS::Hub h;
-
+ 
   PID pid;
+ 
   /**
    * TODO: Initialize the pid variable.
    */
@@ -50,26 +51,71 @@ int main() {
         auto j = json::parse(s);
 
         string event = j[0].get<string>();
-
+        
         if (event == "telemetry") {
           // j[1] is the data JSON object
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
           double steer_value;
+          double p[3]={0,0,0};
+  		  double dp[3]={1,1,1};
+  		  double sum_dp=dp[0]+dp[1]+dp[2];
+          pid.Init(p[0],p[1],p[2]);
+          double best_error ;
+          int i;
+          pid.SetParam(p[0],p[1],p[2]);
+          pid.UpdateError(cte);
+          steer_value = pid.TotalError();
+          best_error = steer_value;        
+          sum_dp=dp[0]+dp[1]+dp[2];
+          while(sum_dp>=3)
+          {
+          	for(i=0; i<3; i++)
+            {
+            	p[i] = p[i]+dp[i];
+                pid.SetParam(p[0],p[1],p[2]);
+              	pid.UpdateError(cte);
+          		steer_value = pid.TotalError();
+                if(steer_value<best_error)
+                {
+                	best_error = steer_value;
+                    dp[i] = dp[i]*1.1;
+                }
+                else
+                {
+                	p[i] = p[i]-dp[i]*2.0;
+                  	pid.SetParam(p[0],p[1],p[2]);
+              		pid.UpdateError(cte);
+          			steer_value = pid.TotalError();
+                    if(steer_value<best_error)
+                    {
+                    	best_error = steer_value;
+                    	dp[i] = dp[i]*1.1;
+                    }
+                    else
+                    {
+                        p[i] = p[i]+dp[i];
+                      	dp[i] = dp[i]*0.9;
+                    }
+                }
+            }
+          }
+          
           /**
            * TODO: Calculate steering value here, remember the steering value is
            *   [-1, 1].
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
+          std::cout << "Best p[0] p[1] p[2]: " << p[0] << p[1] << p[2] << " ";
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
                     << std::endl;
 
           json msgJson;
-          msgJson["steering_angle"] = steer_value;
+          msgJson["steering_angle"] = best_error;
           msgJson["throttle"] = 0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
