@@ -36,3 +36,22 @@ Fellow students have put together a guide to Windows set-up for the project [her
 4. Run it: `./pid`. 
 
 ## Rubric
+
+The PID procedure follows what was taught in the lessons.
+The PID implementation is done on the ./src/PID.cpp. The PID::UpdateError method calculates proportional, integral and derivative errors and the PID::TotalError calculates the total error using the appropriate coefficients.
+
+1. Proportional (P):
+The proportional parameter in the controller determines to which extent should the direction change respective to the cross-track-error (CTE). Given the direct relationship, it has the potential for agressive behaviour if the parameter is set too high.
+
+2. Integral
+The integral parameter in the controller adjusts in proportion to the running sum of cross-track-error during all iterations. It's purpose is to ensure that the CTE is decreasing in the long term and stabilizes.
+
+3. Differential (D):
+The differential parameter in the controller adjusts in proportion to changes in CTE. Given that the rate of change is smaller than the error after the initial iteration, this parameter is a lot more useful in decreasing oscillations.
+
+I finally tuning :
+
+KP = 0.2
+KI = 3.0
+KD = 0.0001
+
