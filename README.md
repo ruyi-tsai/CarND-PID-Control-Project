@@ -52,6 +52,6 @@ The differential parameter in the controller adjusts in proportion to changes in
 I finally tuning :
 
 KP = 0.2
-KI = 3.0
-KD = 0.0001
+KI = 0.004
+KD = 3.0
 
